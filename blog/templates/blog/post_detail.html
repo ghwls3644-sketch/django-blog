@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Post Header -->
+        <article class="card mb-4">
+            <div class="card-body p-4">
+                <!-- Meta Info -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="badge bg-primary me-2">{{ post.author.username }}</span>
+                        {% if not post.is_public %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-lock me-1"></i>비공개
+                        </span>
+                        {% endif %}
+                    </div>
+                    <small class="text-secondary">
+                        <i class="bi bi-calendar3 me-1"></i>{{ post.created_at|date:"Y년 m월 d일 H:i" }}
+                        {% if post.updated_at != post.created_at %}
+                        <span class="ms-2">
+                            <i class="bi bi-pencil me-1"></i>{{ post.updated_at|date:"Y.m.d H:i" }} 수정됨
+                        </span>
+                        {% endif %}
+                    </small>
+                </div>
+
+                <!-- Title -->
+                <h1 class="display-6 fw-bold mb-4">{{ post.title }}</h1>
+
+                <!-- Content -->
+                <div class="post-content" style="line-height: 1.8;">
+                    {{ post.content|linebreaks }}
+                </div>
+
+                <!-- Actions -->
+                {% if user == post.author %}
+                <hr class="my-4" style="border-color: var(--border-color);">
+                <div class="d-flex gap-2">
+                    <a href="{% url 'post_update' post.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>수정
+                    </a>
+                    <a href="{% url 'post_delete' post.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>삭제
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </article>
+
+        <!-- Comments Section -->
+        <div class="card">
+            <div class="card-body p-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-chat-dots me-2"></i>댓글 ({{ comments.count }})
+                </h5>
+
+                <!-- Comment Form -->
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'comment_create' post.pk %}" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ comment_form.content }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i>댓글 작성
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    댓글을 작성하려면 <a href="{% url 'login' %}">로그인</a>해주세요.
+                </div>
+                {% endif %}
+
+                <!-- Comments List -->
+                {% for comment in comments %}
+                <div class="border-bottom pb-3 mb-3" style="border-color: var(--border-color) !important;">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-secondary">{{ comment.author.username }}</span>
+                            <small class="text-secondary ms-2">{{ comment.created_at|date:"Y.m.d H:i" }}</small>
+                        </div>
+                        {% if user == comment.author %}
+                        <form method="post" action="{% url 'comment_delete' post.pk comment.pk %}"
+                            style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('댓글을 삭제하시겠습니까?');">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <p class="mt-2 mb-0">{{ comment.content|linebreaks }}</p>
+                </div>
+                {% empty %}
+                <p class="text-secondary text-center py-4">
+                    <i class="bi bi-chat display-4 d-block mb-2"></i>
+                    아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a href="{% url 'post_list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-1"></i>목록으로
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

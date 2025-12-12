@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}회원가입 - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-lg-4 mx-auto">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-plus display-4 text-primary"></i>
+                    <h3 class="mt-3">회원가입</h3>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">사용자명</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <small class="text-danger">{{ form.username.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">이메일</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <small class="text-danger">{{ form.email.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label">비밀번호</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                        <small class="text-danger">{{ form.password1.errors.0 }}</small>
+                        {% endif %}
+                        <small class="text-secondary d-block mt-1">
+                            8자 이상, 영문과 숫자 조합
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password2" class="form-label">비밀번호 확인</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                        <small class="text-danger">{{ form.password2.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="bi bi-person-plus me-2"></i>가입하기
+                    </button>
+                </form>
+
+                <hr class="my-4" style="border-color: var(--border-color);">
+
+                <p class="text-center text-secondary mb-0">
+                    이미 계정이 있으신가요?
+                    <a href="{% url 'login' %}" class="text-primary">로그인</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

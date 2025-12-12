@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}내 게시글 - Django Blog{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">
+    <i class="bi bi-file-text me-2"></i>내 게시글
+</h2>
+
+<div class="table-responsive">
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                <th>제목</th>
+                <th class="text-center">상태</th>
+                <th class="text-center">댓글</th>
+                <th class="text-center">작성일</th>
+                <th class="text-center">관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>
+                    <a href="{% url 'post_detail' post.pk %}" class="text-decoration-none text-white">
+                        {{ post.title }}
+                    </a>
+                </td>
+                <td class="text-center">
+                    {% if post.is_public %}
+                    <span class="badge bg-success">공개</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">비공개</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">{{ post.comments.count }}</td>
+                <td class="text-center">{{ post.created_at|date:"Y.m.d" }}</td>
+                <td class="text-center">
+                    <a href="{% url 'post_update' post.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'post_delete' post.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-4">
+                    <i class="bi bi-inbox display-4 d-block mb-2 text-secondary"></i>
+                    <p class="text-secondary">작성한 게시글이 없습니다.</p>
+                    <a href="{% url 'post_create' %}" class="btn btn-primary">
+                        <i class="bi bi-pencil-square me-1"></i>첫 글 작성하기
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if posts.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if posts.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ posts.previous_page_number }}">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+
+        {% for num in posts.paginator.page_range %}
+        {% if posts.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %} <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if posts.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ posts.next_page_number }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
