@@ -8,25 +8,30 @@ class PostForm(forms.ModelForm):
     """게시글 작성/수정 폼"""
     class Meta:
         model = Post
-        fields = ['title', 'content', 'is_public']
+        fields = ['title', 'category', 'tags', 'content', 'is_public']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': '제목을 입력하세요'
             }),
+            'category': forms.Select(attrs={
+                'class': 'form-select'
+            }),
             'content': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 10,
+                'rows': 15,
                 'placeholder': '내용을 입력하세요'
             }),
             'is_public': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
-            }),
+            })
         }
         labels = {
             'title': '제목',
+            'category': '카테고리',
+            'tags': '태그',
             'content': '내용',
-            'is_public': '공개',
+            'is_public': '공개'
         }
 
 

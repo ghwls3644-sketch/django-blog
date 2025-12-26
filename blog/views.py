@@ -4,7 +4,8 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import Post, Comment
+import json
+from .models import Post, Comment, Category, Tag
 from .forms import PostForm, CommentForm, SignUpForm
 
 
@@ -19,12 +20,27 @@ def post_list(request):
             Q(title__icontains=query) | Q(content__icontains=query)
         )
     
+    # 정렬 기능
+    sort = request.GET.get('sort', 'latest')  # 기본값: 최신순
+    if sort == 'views':
+        posts = posts.order_by('-views', '-created_at')
+    else:  # latest
+        posts = posts.order_by('-created_at')
+    
     # 페이지네이션
     paginator = Paginator(posts, 10)
     page = request.GET.get('page')
     posts = paginator.get_page(page)
     
-    return render(request, 'blog/post_list.html', {'posts': posts, 'query': query})
+    # 인기글 (조회수 Top 5)
+    popular_posts = Post.objects.filter(is_public=True).order_by('-views')[:5]
+    
+    return render(request, 'blog/post_list.html', {
+        'posts': posts,
+        'query': query,
+        'sort': sort,
+        'popular_posts': popular_posts,
+    })
 
 
 def post_detail(request, pk):
@@ -36,13 +52,23 @@ def post_detail(request, pk):
         messages.error(request, '이 글을 볼 권한이 없습니다.')
         return redirect('post_list')
     
+    # 조회수 증가 (세션 기반 중복 방지)
+    session_key = f'viewed_post_{pk}'
+    if not request.session.get(session_key, False):
+        post.increment_views()
+        request.session[session_key] = True
+    
     comments = post.comments.all()
     comment_form = CommentForm()
+    
+    # 인기글 (조회수 Top 5)
+    popular_posts = Post.objects.filter(is_public=True).order_by('-views')[:5]
     
     return render(request, 'blog/post_detail.html', {
         'post': post,
         'comments': comments,
         'comment_form': comment_form,
+        'popular_posts': popular_posts,
     })
 
 
@@ -55,12 +81,21 @@ def post_create(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
+            form.save_m2m()  # ManyToMany 필드 저장
             messages.success(request, '게시글이 작성되었습니다.')
             return redirect('post_detail', pk=post.pk)
     else:
         form = PostForm()
     
-    return render(request, 'blog/post_form.html', {'form': form, 'action': '작성'})
+    # 카테고리별 태그 데이터 전달
+    categories = Category.objects.all()
+    tags_by_category = {cat.id: list(cat.tags.values('id', 'name')) for cat in categories}
+    
+    return render(request, 'blog/post_form.html', {
+        'form': form,
+        'action': '작성',
+        'tags_by_category': json.dumps(tags_by_category)
+    })
 
 
 @login_required
@@ -82,7 +117,15 @@ def post_update(request, pk):
     else:
         form = PostForm(instance=post)
     
-    return render(request, 'blog/post_form.html', {'form': form, 'action': '수정'})
+    # 카테고리별 태그 데이터 전달
+    categories = Category.objects.all()
+    tags_by_category = {cat.id: list(cat.tags.values('id', 'name')) for cat in categories}
+    
+    return render(request, 'blog/post_form.html', {
+        'form': form,
+        'action': '수정',
+        'tags_by_category': json.dumps(tags_by_category)
+    })
 
 
 @login_required
@@ -159,3 +202,59 @@ def my_posts(request):
     posts = paginator.get_page(page)
     
     return render(request, 'blog/my_posts.html', {'posts': posts})
+
+
+def category_posts(request, slug):
+    """카테고리별 게시글 목록"""
+    category = get_object_or_404(Category, slug=slug)
+    posts = Post.objects.filter(category=category, is_public=True)
+    
+    # 정렬 기능
+    sort = request.GET.get('sort', 'latest')
+    if sort == 'views':
+        posts = posts.order_by('-views', '-created_at')
+    else:
+        posts = posts.order_by('-created_at')
+    
+    # 페이지네이션
+    paginator = Paginator(posts, 10)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
+    
+    # 인기글
+    popular_posts = Post.objects.filter(is_public=True).order_by('-views')[:5]
+    
+    return render(request, 'blog/category_posts.html', {
+        'category': category,
+        'posts': posts,
+        'sort': sort,
+        'popular_posts': popular_posts,
+    })
+
+
+def tag_posts(request, slug):
+    """태그별 게시글 목록"""
+    tag = get_object_or_404(Tag, slug=slug)
+    posts = Post.objects.filter(tags=tag, is_public=True)
+    
+    # 정렬 기능
+    sort = request.GET.get('sort', 'latest')
+    if sort == 'views':
+        posts = posts.order_by('-views', '-created_at')
+    else:
+        posts = posts.order_by('-created_at')
+    
+    # 페이지네이션
+    paginator = Paginator(posts, 10)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
+    
+    # 인기글
+    popular_posts = Post.objects.filter(is_public=True).order_by('-views')[:5]
+    
+    return render(request, 'blog/tag_posts.html', {
+        'tag': tag,
+        'posts': posts,
+        'sort': sort,
+        'popular_posts': popular_posts,
+    })

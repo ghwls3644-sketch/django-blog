@@ -14,6 +14,10 @@ urlpatterns = [
     path('post/<int:pk>/comment/', views.comment_create, name='comment_create'),
     path('post/<int:pk>/comment/<int:comment_pk>/delete/', views.comment_delete, name='comment_delete'),
     
+    # 카테고리 & 태그
+    path('category/<slug:slug>/', views.category_posts, name='category_posts'),
+    path('tag/<slug:slug>/', views.tag_posts, name='tag_posts'),
+    
     # 내 게시글
     path('my-posts/', views.my_posts, name='my_posts'),
     
