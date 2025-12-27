@@ -1,11 +1,29 @@
 {% extends 'base.html' %}
 
-{% block title %}내 게시글 - Django Blog{% endblock %}
+{% block title %}내 게시글 - 서로소식 블로그{% endblock %}
 
 {% block content %}
 <h2 class="mb-4">
     <i class="bi bi-file-text me-2"></i>내 게시글
 </h2>
+
+<!-- 상태 필터 버튼 -->
+<div class="mb-4">
+    <div class="btn-group" role="group">
+        <a href="?status=all" class="btn btn-outline-light {% if status_filter == 'all' %}active{% endif %}">
+            전체 <span class="badge bg-secondary">{{ status_counts.all }}</span>
+        </a>
+        <a href="?status=published" class="btn btn-outline-success {% if status_filter == 'published' %}active{% endif %}">
+            <i class="bi bi-check-circle me-1"></i>발행됨 <span class="badge bg-success">{{ status_counts.published }}</span>
+        </a>
+        <a href="?status=draft" class="btn btn-outline-secondary {% if status_filter == 'draft' %}active{% endif %}">
+            <i class="bi bi-file-earmark me-1"></i>임시저장 <span class="badge bg-secondary">{{ status_counts.draft }}</span>
+        </a>
+        <a href="?status=scheduled" class="btn btn-outline-info {% if status_filter == 'scheduled' %}active{% endif %}">
+            <i class="bi bi-clock me-1"></i>예약발행 <span class="badge bg-info">{{ status_counts.scheduled }}</span>
+        </a>
+    </div>
+</div>
 
 <div class="table-responsive">
     <table class="table table-dark table-hover">
@@ -25,12 +43,28 @@
                     <a href="{% url 'post_detail' post.pk %}" class="text-decoration-none text-white">
                         {{ post.title }}
                     </a>
+                    {% if not post.is_public %}
+                    <i class="bi bi-lock-fill text-warning ms-1" title="비공개"></i>
+                    {% endif %}
                 </td>
                 <td class="text-center">
-                    {% if post.is_public %}
-                    <span class="badge bg-success">공개</span>
+                    {% if post.status == 'draft' %}
+                    <span class="badge bg-secondary">
+                        <i class="bi bi-file-earmark me-1"></i>임시저장
+                    </span>
+                    {% elif post.status == 'scheduled' %}
+                    <span class="badge bg-info">
+                        <i class="bi bi-clock me-1"></i>예약발행
+                    </span>
+                    {% if post.published_at %}
+                    <small class="d-block text-info mt-1">
+                        {{ post.published_at|date:"m/d H:i" }}
+                    </small>
+                    {% endif %}
                     {% else %}
-                    <span class="badge bg-warning text-dark">비공개</span>
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle me-1"></i>발행됨
+                    </span>
                     {% endif %}
                 </td>
                 <td class="text-center">{{ post.comments.count }}</td>

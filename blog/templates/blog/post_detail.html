@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ post.title }} - Django Blog{% endblock %}
+{% block title %}{{ post.title }} - 서로소식 블로그{% endblock %}
+
+{% block meta_description %}{% if post.meta_description %}{{ post.meta_description }}{% else %}{{ post.content|truncatewords:30|striptags }}{% endif %}{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{% if post.meta_description %}{{ post.meta_description }}{% else %}{{ post.content|truncatewords:30|striptags }}{% endif %}{% endblock %}
+
+{% block twitter_title %}{{ post.title }}{% endblock %}
+{% block twitter_description %}{% if post.meta_description %}{{ post.meta_description }}{% else %}{{ post.content|truncatewords:30|striptags }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -39,9 +48,36 @@
                 <h1 class="display-6 fw-bold mb-4 text-white">{{ post.title }}</h1>
 
                 <!-- Content -->
-                <div class="post-content text-white" style="line-height: 1.8; color: #e0e0e0;">
-                    {{ post.content|linebreaks }}
+                <div class="post-content text-white" id="post-content" style="line-height: 1.8; color: #e0e0e0;">
+                    <!-- 마크다운 렌더링 대신 일반 텍스트 폴백 -->
+                    <noscript>{{ post.content|linebreaks }}</noscript>
                 </div>
+                
+                <script>
+                    // 마크다운 렌더링
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const rawContent = `{{ post.content|escapejs }}`;
+                        const postContent = document.getElementById('post-content');
+                        
+                        if (typeof marked !== 'undefined') {
+                            // marked.js 설정
+                            marked.setOptions({
+                                breaks: true,
+                                gfm: true
+                            });
+                            
+                            postContent.innerHTML = marked.parse(rawContent);
+                            
+                            // Prism 재적용
+                            if (typeof Prism !== 'undefined') {
+                                Prism.highlightAllUnder(postContent);
+                            }
+                        } else {
+                            // marked 없으면 기본 출력
+                            postContent.innerHTML = rawContent.replace(/\n/g, '<br>');
+                        }
+                    });
+                </script>
 
                 <!-- Tags -->
                 {% if post.tags.exists %}
@@ -69,6 +105,39 @@
             </div>
         </article>
 
+        <!-- Related Posts -->
+        {% if related_posts %}
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-link-45deg me-2"></i>관련 글
+                </h5>
+                <div class="row g-3">
+                    {% for related in related_posts %}
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ related.get_absolute_url }}" class="text-decoration-none">
+                            <div class="p-3 rounded" style="background: var(--bg-dark); border: 1px solid var(--border-color); transition: all 0.3s ease;"
+                                onmouseover="this.style.borderColor='var(--primary-color)'" 
+                                onmouseout="this.style.borderColor='var(--border-color)'">
+                                {% if related.category %}
+                                <span class="badge bg-success mb-2">{{ related.category.name }}</span>
+                                {% endif %}
+                                <h6 class="text-white mb-2" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    {{ related.title }}
+                                </h6>
+                                <small class="text-secondary">
+                                    <i class="bi bi-eye me-1"></i>{{ related.views }}
+                                    <i class="bi bi-calendar3 ms-2 me-1"></i>{{ related.created_at|date:"Y.m.d" }}
+                                </small>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Comments Section -->
         <div class="card">
             <div class="card-body p-4">
@@ -77,43 +146,134 @@
                 </h5>
 
                 <!-- Comment Form -->
-                {% if user.is_authenticated %}
-                <form method="post" action="{% url 'comment_create' post.pk %}" class="mb-4">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        {{ comment_form.content }}
+                {% if can_comment %}
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'comment_create' post.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ comment_form.content }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>댓글 작성
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        댓글을 작성하려면 <a href="{% url 'login' %}">로그인</a>해주세요.
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-send me-1"></i>댓글 작성
-                    </button>
-                </form>
+                    {% endif %}
                 {% else %}
-                <div class="alert alert-info mb-4">
-                    <i class="bi bi-info-circle me-2"></i>
-                    댓글을 작성하려면 <a href="{% url 'login' %}">로그인</a>해주세요.
+                <div class="alert alert-secondary mb-4">
+                    <i class="bi bi-lock me-2"></i>
+                    발행된 글에만 댓글을 작성할 수 있습니다.
                 </div>
                 {% endif %}
 
                 <!-- Comments List -->
                 {% for comment in comments %}
                 <div class="border-bottom pb-3 mb-3" style="border-color: var(--border-color) !important;">
+                    {% if comment.is_hidden %}
+                    <!-- 숨겨진 댓글 -->
+                    <div class="text-secondary">
+                        <i class="bi bi-eye-slash me-1"></i>
+                        <em>숨겨진 댓글입니다.</em>
+                        {% if user.is_staff %}
+                        <span class="ms-2">
+                            (신고 {{ comment.report_count }}회)
+                            <a href="{% url 'comment_hide' post.pk comment.pk %}" class="btn btn-sm btn-outline-success ms-2">
+                                <i class="bi bi-eye me-1"></i>표시
+                            </a>
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <!-- 일반 댓글 표시 -->
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <span class="badge bg-secondary">{{ comment.author.username }}</span>
                             <small class="text-secondary ms-2">{{ comment.created_at|date:"Y.m.d H:i" }}</small>
+                            {% if comment.report_count > 0 and user.is_staff %}
+                            <span class="badge bg-warning text-dark ms-2">
+                                <i class="bi bi-flag me-1"></i>{{ comment.report_count }}
+                            </span>
+                            {% endif %}
                         </div>
-                        {% if user == comment.author %}
-                        <form method="post" action="{% url 'comment_delete' post.pk comment.pk %}"
-                            style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('댓글을 삭제하시겠습니까?');">
-                                <i class="bi bi-trash"></i>
+                        <div>
+                            <!-- 신고 버튼 (다른 사용자 댓글만, 관리자 댓글 제외) -->
+                            {% if user.is_authenticated and user != comment.author and not comment.author.is_staff %}
+                            <button type="button" class="btn btn-sm btn-outline-warning" 
+                                data-bs-toggle="modal" data-bs-target="#reportModal{{ comment.pk }}">
+                                <i class="bi bi-flag"></i>
                             </button>
-                        </form>
-                        {% endif %}
+                            {% endif %}
+                            
+                            <!-- 삭제 버튼 (작성자만) -->
+                            {% if user == comment.author %}
+                            <form method="post" action="{% url 'comment_delete' post.pk comment.pk %}"
+                                style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('댓글을 삭제하시겠습니까?');">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                            
+                            <!-- 숨김 버튼 (관리자만) -->
+                            {% if user.is_staff %}
+                            <a href="{% url 'comment_hide' post.pk comment.pk %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye-slash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
                     <p class="mt-2 mb-0">{{ comment.content|linebreaks }}</p>
+                    
+                    <!-- 신고 모달 -->
+                    {% if user.is_authenticated and user != comment.author %}
+                    <div class="modal fade" id="reportModal{{ comment.pk }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border-color);">
+                                <form method="post" action="{% url 'comment_report' post.pk comment.pk %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                                        <h5 class="modal-title">
+                                            <i class="bi bi-flag-fill text-warning me-2"></i>댓글 신고
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">신고 사유</label>
+                                            <select name="reason" class="form-select" 
+                                                style="background-color: var(--bg-dark); border-color: var(--border-color); color: var(--text-primary);">
+                                                <option value="spam">🚫 스팸/광고</option>
+                                                <option value="abuse">🤬 욕설/비방</option>
+                                                <option value="hate">😡 혐오/차별</option>
+                                                <option value="illegal">⚠️ 불법 정보</option>
+                                                <option value="other">📝 기타</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">상세 내용 <small class="text-secondary">(선택)</small></label>
+                                            <textarea name="detail" class="form-control" rows="3" 
+                                                style="background-color: var(--bg-dark); border-color: var(--border-color); color: var(--text-primary);"
+                                                placeholder="추가 설명이 있으면 작성해주세요."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">취소</button>
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>신고하기
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
                 </div>
                 {% empty %}
                 <p class="text-secondary text-center py-4">

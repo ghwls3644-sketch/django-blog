@@ -1,4 +1,4 @@
-# Django Blog
+# 서로소식 블로그
 
 Docker, Django, PostgreSQL 기반의 개인 기술 블로그입니다.
 

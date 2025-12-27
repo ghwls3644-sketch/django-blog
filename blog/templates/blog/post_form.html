@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}게시글 {{ action }} - Django Blog{% endblock %}
+{% block title %}게시글 {{ action }} - 서로소식 블로그{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -31,8 +31,10 @@
                         <label class="form-label text-white d-block">태그</label>
                         <div id="tag-selector-container" class="tag-selector">
                             {% for tag in form.fields.tags.queryset %}
-                            <input type="checkbox" name="tags" value="{{ tag.id }}" id="id_tags_{{ tag.id }}" {% if tag in form.instance.tags.all %}checked{% endif %} data-category="{{ tag.category.id }}">
-                            <label for="id_tags_{{ tag.id }}">{{ tag.name }}</label>
+                            <span class="tag-item" data-category="{{ tag.category.id }}">
+                                <input type="checkbox" name="tags" value="{{ tag.id }}" id="id_tags_{{ tag.id }}" {% if tag in form.instance.tags.all %}checked{% endif %}>
+                                <label for="id_tags_{{ tag.id }}">{{ tag.name }}</label>
+                            </span>
                             {% endfor %}
                         </div>
                         <small class="text-secondary d-block mt-2">
@@ -49,14 +51,7 @@
                             margin-top: 0.5rem;
                         }
 
-                        .tag-selector ul {
-                            display: contents;
-                            list-style: none;
-                            padding: 0;
-                            margin: 0;
-                        }
-
-                        .tag-selector li {
+                        .tag-selector .tag-item {
                             display: inline-block;
                         }
 
@@ -84,16 +79,70 @@
                             transform: translateY(-2px);
                         }
 
-                        .tag-selector input[type="checkbox"]:checked~label,
-                        .tag-selector input[type="checkbox"]:checked+label {
+                        .tag-selector input[type="checkbox"]:checked + label {
                             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
                             border-color: var(--primary-color);
                             color: white;
                             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
                         }
+                    </style>
 
-                        .tag-selector li[style*="display: none"] {
-                            display: none !important;
+                    <!-- 이미지 업로드 (접기/펼치기) -->
+                    <div class="mb-4">
+                        <a class="text-secondary text-decoration-none d-flex align-items-center" 
+                            data-bs-toggle="collapse" href="#imageUploadSection" role="button" aria-expanded="false">
+                            <i class="bi bi-chevron-right me-1" id="imageUploadIcon"></i>
+                            <i class="bi bi-image me-1"></i>
+                            <span>이미지 업로드</span>
+                        </a>
+                        <div class="collapse mt-2" id="imageUploadSection">
+                            <div id="image-upload-area" class="image-upload-area">
+                                <input type="file" id="image-input" accept="image/*" style="display: none;">
+                                <div class="upload-placeholder">
+                                    <i class="bi bi-cloud-arrow-up fs-1 text-secondary"></i>
+                                    <p class="mb-0 text-secondary">클릭하거나 드래그하여 이미지를 업로드하세요</p>
+                                    <small class="text-muted">JPG, PNG, GIF, WebP (최대 5MB)</small>
+                                </div>
+                                <div id="upload-progress" class="upload-progress" style="display: none;">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                                    <span>업로드 중...</span>
+                                </div>
+                            </div>
+                            <small class="text-secondary d-block mt-1">
+                                업로드된 이미지는 본문에 마크다운 형식으로 삽입됩니다.
+                            </small>
+                        </div>
+                    </div>
+
+                    <script>
+                        // 이미지 업로드 접기/펼치기 아이콘 변경
+                        document.getElementById('imageUploadSection').addEventListener('show.bs.collapse', function() {
+                            document.getElementById('imageUploadIcon').classList.replace('bi-chevron-right', 'bi-chevron-down');
+                        });
+                        document.getElementById('imageUploadSection').addEventListener('hide.bs.collapse', function() {
+                            document.getElementById('imageUploadIcon').classList.replace('bi-chevron-down', 'bi-chevron-right');
+                        });
+                    </script>
+
+                    <style>
+                        .image-upload-area {
+                            border: 2px dashed var(--border-color);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: center;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            background: var(--bg-dark);
+                        }
+                        .image-upload-area:hover,
+                        .image-upload-area.dragover {
+                            border-color: var(--primary-color);
+                            background: rgba(99, 102, 241, 0.1);
+                        }
+                        .upload-progress {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
                         }
                     </style>
 
@@ -101,6 +150,34 @@
                         <label for="id_content" class="form-label text-white">내용</label>
                         {{ form.content }}
                     </div>
+
+                    <!-- SEO 메타 설명 (접기/펼치기) -->
+                    <div class="mb-4">
+                        <a class="text-secondary text-decoration-none" data-bs-toggle="collapse" href="#metaDescSection" role="button" aria-expanded="false">
+                            <i class="bi bi-chevron-right me-1" id="metaDescIcon"></i>
+                            <small>SEO 메타 설명 (선택)</small>
+                        </a>
+                        <div class="collapse mt-2" id="metaDescSection">
+                            {{ form.meta_description }}
+                            <small class="text-secondary d-block mt-1">
+                                검색 결과에 표시될 설명입니다. 비워두면 본문 앞부분이 사용됩니다.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        // 접기/펼치기 아이콘 변경
+                        document.getElementById('metaDescSection').addEventListener('show.bs.collapse', function() {
+                            document.getElementById('metaDescIcon').classList.replace('bi-chevron-right', 'bi-chevron-down');
+                        });
+                        document.getElementById('metaDescSection').addEventListener('hide.bs.collapse', function() {
+                            document.getElementById('metaDescIcon').classList.replace('bi-chevron-down', 'bi-chevron-right');
+                        });
+                    </script>
+
+                    <!-- 상태 (숨김) -->
+                    <input type="hidden" name="status" id="id_status" value="published">
+                    <input type="hidden" name="published_at" id="id_published_at" value="">
 
                     <div class="mb-4 form-check">
                         {{ form.is_public }}
@@ -110,9 +187,27 @@
                         </small>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
+                    <!-- 예약발행 시간 (숨김, 버튼 클릭 시 표시) -->
+                    <div class="mb-4" id="schedule-container" style="display: none;">
+                        <label class="form-label text-white">
+                            <i class="bi bi-calendar-event me-1"></i>발행 예정일
+                        </label>
+                        <input type="datetime-local" class="form-control" id="schedule-datetime"
+                            style="background-color: var(--bg-dark); border-color: var(--border-color); color: var(--text-primary); color-scheme: dark;">
+                        <small class="text-secondary d-block mt-1">
+                            설정한 날짜와 시간에 자동으로 공개됩니다.
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary" id="btn-publish">
                             <i class="bi bi-check-lg me-1"></i>{{ action }}
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btn-draft">
+                            <i class="bi bi-save me-1"></i>임시저장
+                        </button>
+                        <button type="button" class="btn btn-outline-info" id="btn-schedule">
+                            <i class="bi bi-clock me-1"></i>예약
                         </button>
                         <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">
                             <i class="bi bi-x-lg me-1"></i>취소
@@ -126,62 +221,184 @@
 
 <script>
     // 카테고리별 태그 데이터
-    const tagsByCategory = {{ tags_by_category| safe }};
-    console.log('Tags by category:', tagsByCategory);
+    const tagsByCategory = {{ tags_by_category|safe }};
 
     // 카테고리 선택 시 태그 필터링
     document.addEventListener('DOMContentLoaded', function () {
         const categorySelect = document.getElementById('id_category');
         const tagsContainer = document.getElementById('tag-selector-container');
+        const statusSelect = document.getElementById('id_status');
+        const publishedAtContainer = document.getElementById('published-at-container');
+        const saveDraftBtn = document.getElementById('save-draft-btn');
 
-        console.log('Category select:', categorySelect);
-        console.log('Tags container:', tagsContainer);
-
+        // 카테고리 필터링
         if (categorySelect && tagsContainer) {
             // 초기 로드 시 현재 카테고리의 태그만 표시
             filterTags();
 
             // 카테고리 변경 시 태그 필터링
-            categorySelect.addEventListener('change', function () {
-                console.log('Category changed to:', categorySelect.value);
-                filterTags();
-            });
+            categorySelect.addEventListener('change', filterTags);
         }
 
         function filterTags() {
             const selectedCategory = categorySelect.value;
-            const tagInputs = tagsContainer.querySelectorAll('input[type="checkbox"]');
+            const tagItems = tagsContainer.querySelectorAll('.tag-item');
 
-            console.log('Selected category:', selectedCategory);
-            console.log('Tag inputs found:', tagInputs.length);
+            tagItems.forEach(item => {
+                const tagCategory = item.dataset.category;
+                const checkbox = item.querySelector('input[type="checkbox"]');
 
-            if (!selectedCategory) {
-                // 카테고리 미선택 시 모든 태그 숨김
-                tagInputs.forEach(input => {
-                    input.style.display = 'none';
-                    input.nextElementSibling.style.display = 'none';
-                });
+                if (!selectedCategory) {
+                    // 카테고리 미선택 시 모든 태그 숨김
+                    item.style.display = 'none';
+                } else if (tagCategory === selectedCategory) {
+                    // 선택된 카테고리의 태그 표시
+                    item.style.display = 'inline-block';
+                } else {
+                    // 다른 카테고리 태그 숨김 및 체크 해제
+                    item.style.display = 'none';
+                    checkbox.checked = false;
+                }
+            });
+        }
+
+        // 버튼 동작
+        const form = document.querySelector('form');
+        const statusInput = document.getElementById('id_status');
+        const publishedAtInput = document.getElementById('id_published_at');
+        const scheduleContainer = document.getElementById('schedule-container');
+        const scheduleDatetime = document.getElementById('schedule-datetime');
+        const btnDraft = document.getElementById('btn-draft');
+        const btnSchedule = document.getElementById('btn-schedule');
+
+        // 임시저장 버튼
+        if (btnDraft) {
+            btnDraft.addEventListener('click', function() {
+                statusInput.value = 'draft';
+                form.submit();
+            });
+        }
+
+        // 예약 버튼
+        if (btnSchedule) {
+            btnSchedule.addEventListener('click', function() {
+                if (scheduleContainer.style.display === 'none') {
+                    // 예약 영역 표시
+                    scheduleContainer.style.display = 'block';
+                    // 기본값: 1시간 후
+                    const now = new Date();
+                    now.setHours(now.getHours() + 1);
+                    scheduleDatetime.value = now.toISOString().slice(0, 16);
+                    btnSchedule.innerHTML = '<i class="bi bi-check-circle me-1"></i>예약 저장';
+                    btnSchedule.classList.remove('btn-outline-info');
+                    btnSchedule.classList.add('btn-info');
+                } else {
+                    // 예약 저장
+                    if (scheduleDatetime.value) {
+                        statusInput.value = 'scheduled';
+                        publishedAtInput.value = scheduleDatetime.value;
+                        form.submit();
+                    } else {
+                        alert('발행 예정일을 선택해주세요.');
+                    }
+                }
+            });
+        }
+
+        // 이미지 업로드 기능
+        const uploadArea = document.getElementById('image-upload-area');
+        const imageInput = document.getElementById('image-input');
+        const uploadProgress = document.getElementById('upload-progress');
+        const uploadPlaceholder = document.querySelector('.upload-placeholder');
+        const contentTextarea = document.getElementById('id_content');
+
+        // 클릭 시 파일 선택
+        uploadArea.addEventListener('click', () => imageInput.click());
+
+        // 드래그 앤 드롭
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageUpload(files[0]);
+            }
+        });
+
+        // 파일 선택 시
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        // 이미지 업로드 처리
+        function handleImageUpload(file) {
+            // 파일 유효성 검사
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('지원하지 않는 이미지 형식입니다. (JPG, PNG, GIF, WebP만 가능)');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('이미지 크기는 5MB 이하여야 합니다.');
                 return;
             }
 
-            // 각 태그 필터링
-            tagInputs.forEach(input => {
-                const tagCategory = input.dataset.category;
-                const label = input.nextElementSibling;
+            // 업로드 진행 표시
+            uploadPlaceholder.style.display = 'none';
+            uploadProgress.style.display = 'flex';
 
-                console.log('Tag category:', tagCategory, 'Selected:', selectedCategory);
+            // FormData 생성
+            const formData = new FormData();
+            formData.append('image', file);
 
-                if (tagCategory === selectedCategory) {
-                    input.style.display = 'none'; // 체크박스는 숨김
-                    label.style.display = 'inline-block'; // 라벨(버튼)은 표시
-                    console.log('Showing tag');
+            // CSRF 토큰 가져오기
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // AJAX 업로드
+            fetch('{% url "image_upload" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                uploadPlaceholder.style.display = 'block';
+                uploadProgress.style.display = 'none';
+
+                if (data.success) {
+                    // 본문에 마크다운 삽입
+                    const cursorPos = contentTextarea.selectionStart;
+                    const textBefore = contentTextarea.value.substring(0, cursorPos);
+                    const textAfter = contentTextarea.value.substring(cursorPos);
+                    const newLine = cursorPos > 0 && !textBefore.endsWith('\n') ? '\n' : '';
+                    contentTextarea.value = textBefore + newLine + data.markdown + '\n' + textAfter;
+                    
+                    // 성공 알림
+                    alert('이미지가 업로드되었습니다!');
                 } else {
-                    input.style.display = 'none';
-                    label.style.display = 'none';
-                    input.checked = false;
-                    console.log('Hiding tag');
+                    alert(data.error || '업로드에 실패했습니다.');
                 }
+            })
+            .catch(error => {
+                uploadPlaceholder.style.display = 'block';
+                uploadProgress.style.display = 'none';
+                console.error('Upload error:', error);
+                alert('업로드 중 오류가 발생했습니다.');
             });
+
+            // 입력 초기화
+            imageInput.value = '';
         }
     });
 </script>

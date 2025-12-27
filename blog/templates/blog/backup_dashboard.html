@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}백업 대시보드 - 서로소식 블로그{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- 헤더 -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-database me-2"></i>백업 대시보드
+            </h2>
+            <span class="badge bg-warning text-dark">
+                <i class="bi bi-shield-lock me-1"></i>관리자 전용
+            </span>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-text fs-1 text-primary"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.total_posts }}</h3>
+                        <small class="text-secondary">전체 게시글</small>
+                        <div class="mt-2">
+                            <span class="badge bg-success">{{ stats.published_posts }} 발행</span>
+                            <span class="badge bg-secondary">{{ stats.draft_posts }} 임시</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-chat-dots fs-1 text-info"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.total_comments }}</h3>
+                        <small class="text-secondary">댓글</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people fs-1 text-success"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.total_users }}</h3>
+                        <small class="text-secondary">사용자</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-image fs-1 text-warning"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.total_images }}</h3>
+                        <small class="text-secondary">이미지</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 분류 통계 -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-folder fs-1 text-success"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.total_categories }}</h3>
+                        <small class="text-secondary">카테고리</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-tag fs-1 text-primary"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.total_tags }}</h3>
+                        <small class="text-secondary">태그</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 백업 다운로드 -->
+        <div class="card">
+            <div class="card-body p-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-download me-2"></i>데이터 내보내기
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <a href="{% url 'export_data' 'posts' %}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="bi bi-file-text fs-4 d-block mb-1"></i>
+                            게시글
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <a href="{% url 'export_data' 'comments' %}" class="btn btn-outline-info w-100 py-3">
+                            <i class="bi bi-chat-dots fs-4 d-block mb-1"></i>
+                            댓글
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <a href="{% url 'export_data' 'categories' %}" class="btn btn-outline-success w-100 py-3">
+                            <i class="bi bi-folder fs-4 d-block mb-1"></i>
+                            카테고리
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <a href="{% url 'export_data' 'tags' %}" class="btn btn-outline-secondary w-100 py-3">
+                            <i class="bi bi-tag fs-4 d-block mb-1"></i>
+                            태그
+                        </a>
+                    </div>
+                </div>
+                
+                <hr class="my-4" style="border-color: var(--border-color);">
+                
+                <div class="text-center">
+                    <a href="{% url 'export_data' 'all' %}" class="btn btn-primary btn-lg px-5">
+                        <i class="bi bi-cloud-download me-2"></i>전체 백업 다운로드
+                    </a>
+                    <p class="text-secondary mt-2 mb-0">
+                        <small>모든 데이터를 JSON 파일로 다운로드합니다.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 안내 -->
+        <div class="alert alert-info mt-4">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>백업 안내:</strong> 다운로드된 JSON 파일은 Django의 <code>loaddata</code> 명령어로 복원할 수 있습니다.
+            <br>
+            <code class="mt-2 d-block">python manage.py loaddata backup.json</code>
+        </div>
+    </div>
+</div>
+{% endblock %}

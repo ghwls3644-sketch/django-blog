@@ -288,11 +288,83 @@
   }
 },
 {
+  "model": "auth.permission",
+  "pk": 33,
+  "fields": {
+    "name": "Can add 카테고리",
+    "content_type": 9,
+    "codename": "add_category"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 34,
+  "fields": {
+    "name": "Can change 카테고리",
+    "content_type": 9,
+    "codename": "change_category"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 35,
+  "fields": {
+    "name": "Can delete 카테고리",
+    "content_type": 9,
+    "codename": "delete_category"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 36,
+  "fields": {
+    "name": "Can view 카테고리",
+    "content_type": 9,
+    "codename": "view_category"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 37,
+  "fields": {
+    "name": "Can add 태그",
+    "content_type": 10,
+    "codename": "add_tag"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 38,
+  "fields": {
+    "name": "Can change 태그",
+    "content_type": 10,
+    "codename": "change_tag"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 39,
+  "fields": {
+    "name": "Can delete 태그",
+    "content_type": 10,
+    "codename": "delete_tag"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 40,
+  "fields": {
+    "name": "Can view 태그",
+    "content_type": 10,
+    "codename": "view_tag"
+  }
+},
+{
   "model": "auth.user",
   "pk": 1,
   "fields": {
     "password": "pbkdf2_sha256$600000$hFRDRLiknmvD08jMSAgKJg$kddABGUW1m/TZQ/8JD89RxOFgZARmObedcuQXcF7H7E=",
-    "last_login": "2025-12-26T10:23:42.867Z",
+    "last_login": "2025-12-26T15:45:10.538Z",
     "is_superuser": true,
     "username": "admin",
     "first_name": "",
@@ -370,11 +442,315 @@
   }
 },
 {
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "blog",
+    "model": "category"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 10,
+  "fields": {
+    "app_label": "blog",
+    "model": "tag"
+  }
+},
+{
   "model": "sessions.session",
   "pk": "blwmtl0qxkg8ou4cvfftgl7odmmb5lx4",
   "fields": {
     "session_data": ".eJxVjEEOwiAQRe_C2hCGoRRcuvcMZGBAqoYmpV0Z765NutDtf-_9lwi0rTVsPS9hYnEWIE6_W6T0yG0HfKd2m2Wa27pMUe6KPGiX15nz83K4fweVev3W0SB7A74wKLBRITtMpM2YDWAZElkcWI_ea6eUKwXZaoXgHRB5yyTeH8XvNwo:1vZ4z0:hLUG4fhM4YxiaNFw3saFCtbUHwU7AFPxfnscFTXfFI8",
     "expire_date": "2026-01-09T10:23:42.873Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "in2cm5s31ikqy7lwbvvhtj7bzut2i16w",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2hCGoRRcuvcMZGBAqoYmpV0Z765NutDtf-_9lwi0rTVsPS9hYnEWIE6_W6T0yG0HfKd2m2Wa27pMUe6KPGiX15nz83K4fweVev3W0SB7A74wKLBRITtMpM2YDWAZElkcWI_ea6eUKwXZaoXgHRB5yyTeH8XvNwo:1vZA06:QjSauCp_Dcx2C-qsx4SgAHCq85D_F93ZbFMmORWufK8",
+    "expire_date": "2026-01-09T15:45:10.541Z"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 1,
+  "fields": {
+    "name": "잡담",
+    "slug": "talk",
+    "description": "",
+    "created_at": "2025-12-26T15:53:41.420Z"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 2,
+  "fields": {
+    "name": "공지",
+    "slug": "notice",
+    "description": "",
+    "created_at": "2025-12-26T15:53:41.425Z"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 3,
+  "fields": {
+    "name": "정보",
+    "slug": "info",
+    "description": "",
+    "created_at": "2025-12-26T15:53:41.428Z"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 4,
+  "fields": {
+    "name": "질문",
+    "slug": "qna",
+    "description": "",
+    "created_at": "2025-12-26T15:53:41.431Z"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 5,
+  "fields": {
+    "name": "이슈",
+    "slug": "issue",
+    "description": "",
+    "created_at": "2025-12-26T15:53:41.433Z"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 6,
+  "fields": {
+    "name": "스포츠",
+    "slug": "sports",
+    "description": "",
+    "created_at": "2025-12-26T15:53:41.436Z"
+  }
+},
+{
+  "model": "blog.category",
+  "pk": 7,
+  "fields": {
+    "name": "유머",
+    "slug": "humor",
+    "description": "",
+    "created_at": "2025-12-26T15:53:41.438Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 1,
+  "fields": {
+    "name": "근황",
+    "slug": "life-update",
+    "category": 1,
+    "created_at": "2025-12-26T15:55:43.956Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 2,
+  "fields": {
+    "name": "썰",
+    "slug": "story",
+    "category": 1,
+    "created_at": "2025-12-26T15:55:43.962Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 3,
+  "fields": {
+    "name": "생각정리",
+    "slug": "thoughts",
+    "category": 1,
+    "created_at": "2025-12-26T15:55:43.964Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 4,
+  "fields": {
+    "name": "업데이트",
+    "slug": "update",
+    "category": 2,
+    "created_at": "2025-12-26T15:55:43.968Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 5,
+  "fields": {
+    "name": "일정",
+    "slug": "schedule",
+    "category": 2,
+    "created_at": "2025-12-26T15:55:43.971Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 6,
+  "fields": {
+    "name": "안내",
+    "slug": "guide",
+    "category": 2,
+    "created_at": "2025-12-26T15:55:43.974Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 7,
+  "fields": {
+    "name": "정리",
+    "slug": "notes",
+    "category": 3,
+    "created_at": "2025-12-26T15:55:43.976Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 8,
+  "fields": {
+    "name": "팁",
+    "slug": "tips",
+    "category": 3,
+    "created_at": "2025-12-26T15:55:43.979Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 9,
+  "fields": {
+    "name": "링크모음",
+    "slug": "links",
+    "category": 3,
+    "created_at": "2025-12-26T15:55:43.981Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 10,
+  "fields": {
+    "name": "도움요청",
+    "slug": "help",
+    "category": 4,
+    "created_at": "2025-12-26T15:55:43.985Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 11,
+  "fields": {
+    "name": "해결완료",
+    "slug": "solved",
+    "category": 4,
+    "created_at": "2025-12-26T15:55:43.987Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 12,
+  "fields": {
+    "name": "토론",
+    "slug": "discussion",
+    "category": 4,
+    "created_at": "2025-12-26T15:55:43.990Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 13,
+  "fields": {
+    "name": "화제",
+    "slug": "hot-topic",
+    "category": 5,
+    "created_at": "2025-12-26T15:55:43.993Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 14,
+  "fields": {
+    "name": "논란",
+    "slug": "controversy",
+    "category": 5,
+    "created_at": "2025-12-26T15:55:43.996Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 15,
+  "fields": {
+    "name": "팩트체크",
+    "slug": "fact-check",
+    "category": 5,
+    "created_at": "2025-12-26T15:55:44.000Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 16,
+  "fields": {
+    "name": "경기후기",
+    "slug": "match-review",
+    "category": 6,
+    "created_at": "2025-12-26T15:55:44.004Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 17,
+  "fields": {
+    "name": "경기결과",
+    "slug": "results",
+    "category": 6,
+    "created_at": "2025-12-26T15:55:44.007Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 18,
+  "fields": {
+    "name": "분석",
+    "slug": "analysis",
+    "category": 6,
+    "created_at": "2025-12-26T15:55:44.011Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 19,
+  "fields": {
+    "name": "밈",
+    "slug": "meme",
+    "category": 7,
+    "created_at": "2025-12-26T15:55:44.013Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 20,
+  "fields": {
+    "name": "짤",
+    "slug": "pics",
+    "category": 7,
+    "created_at": "2025-12-26T15:55:44.016Z"
+  }
+},
+{
+  "model": "blog.tag",
+  "pk": 21,
+  "fields": {
+    "name": "드립",
+    "slug": "jokes",
+    "category": 7,
+    "created_at": "2025-12-26T15:55:44.018Z"
   }
 }
 ]

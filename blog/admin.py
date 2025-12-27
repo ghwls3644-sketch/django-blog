@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import Post, Comment, Category, Tag
 
+# 관리자 페이지 커스터마이징
+admin.site.site_header = '블로그 관리'
+admin.site.site_title = '블로그 관리'
+admin.site.index_title = '관리자 페이지'
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

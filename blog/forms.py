@@ -8,7 +8,7 @@ class PostForm(forms.ModelForm):
     """게시글 작성/수정 폼"""
     class Meta:
         model = Post
-        fields = ['title', 'category', 'tags', 'content', 'is_public']
+        fields = ['title', 'category', 'tags', 'content', 'meta_description', 'status', 'published_at', 'is_public']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -22,6 +22,21 @@ class PostForm(forms.ModelForm):
                 'rows': 15,
                 'placeholder': '내용을 입력하세요'
             }),
+            'meta_description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'maxlength': 160,
+                'placeholder': '검색 엔진에 표시될 설명을 입력하세요 (160자 이내)'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'id_status'
+            }),
+            'published_at': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local',
+                'id': 'id_published_at'
+            }),
             'is_public': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             })
@@ -31,6 +46,9 @@ class PostForm(forms.ModelForm):
             'category': '카테고리',
             'tags': '태그',
             'content': '내용',
+            'meta_description': '메타 설명 (SEO)',
+            'status': '상태',
+            'published_at': '발행 예정일',
             'is_public': '공개'
         }
 
@@ -87,3 +105,46 @@ class SignUpForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class UserProfileForm(forms.ModelForm):
+    """프로필 편집 폼"""
+    class Meta:
+        from .models import UserProfile
+        model = UserProfile
+        fields = ['bio', 'avatar', 'website', 'github', 'skills', 'location']
+        widgets = {
+            'bio': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': '자기소개를 입력하세요'
+            }),
+            'avatar': forms.FileInput(attrs={
+                'class': 'form-control'
+            }),
+            'website': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://example.com'
+            }),
+            'github': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'GitHub 사용자명'
+            }),
+            'skills': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Python, Django, JavaScript'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '서울, 대한민국'
+            }),
+        }
+        labels = {
+            'bio': '자기소개',
+            'avatar': '프로필 이미지',
+            'website': '웹사이트',
+            'github': 'GitHub',
+            'skills': '기술 스택',
+            'location': '위치',
+        }

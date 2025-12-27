@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}요청 제한 - 서로소식 블로그{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-shield-exclamation fs-1 text-warning"></i>
+                </div>
+                <h3 class="mb-3">요청이 너무 많습니다</h3>
+                <p class="text-secondary mb-4">
+                    잠시 후 다시 시도해주세요.<br>
+                    스팸 방지를 위해 요청 횟수가 제한됩니다.
+                </p>
+                <a href="{% url 'post_list' %}" class="btn btn-primary">
+                    <i class="bi bi-house me-1"></i>홈으로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

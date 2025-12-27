@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.username }}의 프로필 - 서로소식 블로그{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- 프로필 카드 -->
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <!-- 아바타 -->
+                    <div class="me-4">
+                        {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" 
+                            class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                            style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                            <i class="bi bi-person-fill fs-1 text-white"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 기본 정보 -->
+                    <div class="flex-grow-1">
+                        <h2 class="mb-1 text-white">{{ profile_user.username }}</h2>
+                        {% if profile.location %}
+                        <p class="text-secondary mb-2">
+                            <i class="bi bi-geo-alt me-1"></i>{{ profile.location }}
+                        </p>
+                        {% endif %}
+                        
+                        <!-- 외부 링크 -->
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if profile.website %}
+                            <a href="{{ profile.website }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-globe me-1"></i>Website
+                            </a>
+                            {% endif %}
+                            {% if profile.github %}
+                            <a href="https://github.com/{{ profile.github }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-github me-1"></i>GitHub
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 편집 버튼 -->
+                    {% if request.user == profile_user %}
+                    <div>
+                        <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil me-1"></i>편집
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- 자기소개 -->
+                {% if profile.bio %}
+                <div class="mb-4">
+                    <h5 class="text-white mb-3">
+                        <i class="bi bi-person-lines-fill me-2"></i>소개
+                    </h5>
+                    <p class="text-secondary" style="white-space: pre-line;">{{ profile.bio }}</p>
+                </div>
+                {% endif %}
+                
+                <!-- 기술 스택 -->
+                {% if profile.skills %}
+                <div class="mb-4">
+                    <h5 class="text-white mb-3">
+                        <i class="bi bi-code-slash me-2"></i>기술 스택
+                    </h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in profile.get_skills_list %}
+                        <span class="badge" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
+                            {{ skill }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- 통계 -->
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="text-center p-3 rounded" style="background: var(--bg-dark);">
+                            <div class="fs-4 fw-bold text-primary">{{ stats.total_posts }}</div>
+                            <small class="text-secondary">게시글</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center p-3 rounded" style="background: var(--bg-dark);">
+                            <div class="fs-4 fw-bold text-success">{{ stats.total_views }}</div>
+                            <small class="text-secondary">조회수</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center p-3 rounded" style="background: var(--bg-dark);">
+                            <div class="fs-4 fw-bold text-info">{{ stats.total_comments }}</div>
+                            <small class="text-secondary">댓글</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 최근 글 -->
+        {% if user_posts %}
+        <div class="card">
+            <div class="card-body p-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-file-text me-2"></i>최근 글
+                </h5>
+                {% for post in user_posts %}
+                <div class="d-flex justify-content-between align-items-center py-3 {% if not forloop.last %}border-bottom{% endif %}" style="border-color: var(--border-color) !important;">
+                    <div>
+                        <a href="{{ post.get_absolute_url }}" class="text-decoration-none">
+                            <h6 class="mb-1 text-white">{{ post.title }}</h6>
+                        </a>
+                        <small class="text-secondary">
+                            <i class="bi bi-eye me-1"></i>{{ post.views }}
+                            <i class="bi bi-calendar3 ms-2 me-1"></i>{{ post.created_at|date:"Y.m.d" }}
+                        </small>
+                    </div>
+                    {% if post.category %}
+                    <span class="badge bg-success">{{ post.category.name }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}프로필 편집 - 서로소식 블로그{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <div class="card">
+            <div class="card-body p-4">
+                <h2 class="mb-4">
+                    <i class="bi bi-person-gear me-2"></i>프로필 편집
+                </h2>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-white">프로필 이미지</label>
+                        {% if form.instance.avatar %}
+                        <div class="mb-2">
+                            <img src="{{ form.instance.avatar.url }}" alt="현재 아바타" 
+                                class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                        </div>
+                        {% endif %}
+                        {{ form.avatar }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-white">자기소개</label>
+                        {{ form.bio }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-white">위치</label>
+                        {{ form.location }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-white">웹사이트</label>
+                        {{ form.website }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-white">GitHub</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background: var(--bg-dark); border-color: var(--border-color); color: var(--text-secondary);">
+                                <i class="bi bi-github"></i>
+                            </span>
+                            {{ form.github }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-white">기술 스택</label>
+                        {{ form.skills }}
+                        <small class="text-secondary d-block mt-1">쉼표로 구분하여 입력하세요.</small>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>저장
+                        </button>
+                        <a href="{% url 'user_profile' request.user.username %}" class="btn btn-outline-secondary">
+                            취소
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
